@@ -39,9 +39,33 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+
+
         //Realmの設定
         mRealm = Realm.getDefaultInstance()
         mRealm.addChangeListener(mRealmListener)
+
+        searchButton.setOnClickListener {
+            if (categorySearch.text.isNotBlank()) {
+                val searchCategoryword = categorySearch.text.toString()
+                val RealmQuery = mRealm.where(Task::class.java)
+                val RealmQueryResult =
+                    RealmQuery.equalTo("category", "$searchCategoryword").findAll()
+                        .sort("date", Sort.DESCENDING)
+
+                mTaskAdapter.taskList = mRealm.copyFromRealm(RealmQueryResult)
+
+                // TaskのListView用のアダプタに渡す
+                listView1.adapter = mTaskAdapter
+
+                // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+                mTaskAdapter.notifyDataSetChanged()
+            }
+        }
+
+        cancelButton.setOnClickListener {
+            reloadListView()
+        }
 
         //ListViewの設定
         mTaskAdapter = TaskAdapter(this@MainActivity)
