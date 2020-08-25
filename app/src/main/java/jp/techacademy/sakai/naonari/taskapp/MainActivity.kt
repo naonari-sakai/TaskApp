@@ -5,26 +5,36 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.Sort
 import io.realm.kotlin.where
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_input.*
 import java.util.*
 
 const val EXTRA_TASK = "jp.techacademy.sakai.naonari.taskapp"
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mRealm: Realm
+    private lateinit var mRealmCotegory: Realm
+    lateinit var mCategoryobject: MutableList<Category>
+    private var spinnerItems = mutableListOf<String>()
     private val mRealmListener = object  : RealmChangeListener<Realm>{
         override fun onChange(element: Realm) {
             reloadListView()
+            reloadListViewCategory()
         }
     }
 
@@ -33,6 +43,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
 
         fab.setOnClickListener { view ->
             val intent = Intent(this@MainActivity,InputActivity::class.java)
@@ -45,12 +57,31 @@ class MainActivity : AppCompatActivity() {
         mRealm = Realm.getDefaultInstance()
         mRealm.addChangeListener(mRealmListener)
 
-        searchButton.setOnClickListener {
-            if (categorySearch.text.isNotBlank()) {
-                val searchCategoryword = categorySearch.text.toString()
+        //Realmの設定（カテゴリー用）
+        mRealmCotegory = Realm.getDefaultInstance()
+        mRealmCotegory.addChangeListener(mRealmListener)
+
+        reloadListViewCategory()
+
+
+        //spinnerの設定
+        val adapter = ArrayAdapter(applicationContext,
+            android.R.layout.simple_spinner_item, spinnerItems)
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        search_spinner.adapter = adapter
+
+        search_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+
+            //アイテムが選択された時
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val spinnerParent = parent as Spinner
+                val item:String = spinnerParent.selectedItem as String
+
                 val RealmQuery = mRealm.where(Task::class.java)
                 val RealmQueryResult =
-                    RealmQuery.equalTo("category", "$searchCategoryword").findAll()
+                    RealmQuery.equalTo("category", "$item").findAll()
                         .sort("date", Sort.DESCENDING)
 
                 mTaskAdapter.taskList = mRealm.copyFromRealm(RealmQueryResult)
@@ -60,7 +91,15 @@ class MainActivity : AppCompatActivity() {
 
                 // 表示を更新するために、アダプターにデータが変更されたことを知らせる
                 mTaskAdapter.notifyDataSetChanged()
+
+                Log.d("TaskApp","test")
             }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                Log.d("TaskApp","miss")
+
+            }
+
         }
 
         cancelButton.setOnClickListener {
@@ -133,13 +172,32 @@ class MainActivity : AppCompatActivity() {
         // TaskのListView用のアダプタに渡す
         listView1.adapter = mTaskAdapter
 
+
         // 表示を更新するために、アダプターにデータが変更されたことを知らせる
         mTaskAdapter.notifyDataSetChanged()
+
+    }
+
+    private fun reloadListViewCategory() {
+
+        // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得(カテゴリー)
+        val taskRealmResultsCategory =
+            mRealmCotegory.where(Category::class.java).findAll().sort("id", Sort.DESCENDING)
+
+        // 上記の結果を、TaskList としてセットする
+        mCategoryobject = mRealmCotegory.copyFromRealm(taskRealmResultsCategory)
+
+        var categoryString: String
+        for (i in mCategoryobject.indices) {
+            categoryString = mCategoryobject[i].category
+            spinnerItems.add(categoryString)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mRealm.close()
+        mRealmCotegory.close()
     }
 
 
