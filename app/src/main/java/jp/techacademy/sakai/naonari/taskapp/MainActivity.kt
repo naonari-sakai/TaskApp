@@ -72,6 +72,8 @@ class MainActivity : AppCompatActivity() {
 
         search_spinner.adapter = adapter
 
+        search_spinner.setSelection(-1)
+
         search_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
             //アイテムが選択された時
@@ -162,6 +164,11 @@ class MainActivity : AppCompatActivity() {
         reloadListView()
     }
 
+    override fun onResume() {
+        reloadListView()
+        super.onResume()
+            }
+
     private fun reloadListView() {
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
         val taskRealmResults = mRealm.where(Task::class.java).findAll().sort("date", Sort.DESCENDING)
@@ -187,6 +194,7 @@ class MainActivity : AppCompatActivity() {
         // 上記の結果を、TaskList としてセットする
         mCategoryobject = mRealmCotegory.copyFromRealm(taskRealmResultsCategory)
 
+        spinnerItems.clear()
         var categoryString: String
         for (i in mCategoryobject.indices) {
             categoryString = mCategoryobject[i].category

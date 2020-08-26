@@ -162,11 +162,13 @@ class InputActivity : AppCompatActivity() {
             times_button.text = timeString
         }
 
-        reloadListView()
     }
 
     override fun onResume() {
         super.onResume()
+
+
+        reloadListView()
 
 
     }
@@ -226,6 +228,8 @@ class InputActivity : AppCompatActivity() {
 
         // 上記の結果を、TaskList としてセットする
         mCategoryobject = mRealm.copyFromRealm(taskRealmResults)
+
+        spinnerItems.clear()
 
         var categoryString:String
         for (i in mCategoryobject.indices){
