@@ -25,7 +25,7 @@ import kotlin.collections.ArrayList
 class InputActivity : AppCompatActivity() {
 
     private lateinit var mRealm: Realm
-    private val mRealmListener = object  : RealmChangeListener<Realm> {
+    private val mRealmListener = object : RealmChangeListener<Realm> {
         override fun onChange(element: Realm) {
             reloadListView()
         }
@@ -41,31 +41,35 @@ class InputActivity : AppCompatActivity() {
     lateinit var mCategoryobject: MutableList<Category>
     private var mTask: Task? = null
 
-    private var spinnerItems = mutableListOf<String>()
-
+    private var spinnerItems:MutableList<String> = mutableListOf<String>()
 
 
     private val mOnDateClickListener = View.OnClickListener {
         val datePickerDialog = DatePickerDialog(this,
-        DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-            mYear = year
-            mMonth = month
-            Log.d("month","${month}")
-            mDay = dayOfMonth
-            val dateString = mYear.toString() + "/" + String.format("%02d",mMonth + 1) + "/" + String.format("%02d", mDay)
-            date_button.text = dateString
-        },mYear,mMonth,mDay)
+            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+                mYear = year
+                mMonth = month
+                Log.d("month", "${month}")
+                mDay = dayOfMonth
+                val dateString = mYear.toString() + "/" + String.format(
+                    "%02d",
+                    mMonth + 1
+                ) + "/" + String.format("%02d", mDay)
+                date_button.text = dateString
+            }, mYear, mMonth, mDay
+        )
         datePickerDialog.show()
     }
 
     private val mOnTimeClickListener = View.OnClickListener {
         val timePickerDialog = TimePickerDialog(this,
-        TimePickerDialog.OnTimeSetListener { _, hour, minute ->
-            mHour = hour
-            mMinute = minute
-            val timeString = String.format("%02d",mHour)+":"+String.format("%02d",mMinute)
-            times_button.text=timeString
-            },mHour,mMinute,false)
+            TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+                mHour = hour
+                mMinute = minute
+                val timeString = String.format("%02d", mHour) + ":" + String.format("%02d", mMinute)
+                times_button.text = timeString
+            }, mHour, mMinute, false
+        )
         timePickerDialog.show()
     }
 
@@ -87,7 +91,7 @@ class InputActivity : AppCompatActivity() {
         //ActionBarを設定する
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
-        if (supportActionBar != null){
+        if (supportActionBar != null) {
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         }
 
@@ -101,39 +105,15 @@ class InputActivity : AppCompatActivity() {
         done_button.setOnClickListener(mOnDoneClickListener)
         category_add_button.setOnClickListener(mOnCategorySetClickListener)
 
-        //spinnerの設定
-        val adapter = ArrayAdapter(applicationContext,
-            android.R.layout.simple_spinner_item, spinnerItems)
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-        spinner2.adapter = adapter
-
-        spinner2.onItemSelectedListener = object :AdapterView.OnItemSelectedListener{
-
-            //アイテムが選択された時
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val spinnerParent = parent as Spinner
-                val item:String = spinnerParent.selectedItem as String
-                mCategory = item
-                Log.d("TaskApp","test")
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                Log.d("TaskApp","miss")
-
-            }
-
-        }
 
         //EXTRA_TASKからTaskのidを取得して、idからTaskのインスタンスを取得する
         val intent = intent
         val taskId = intent.getIntExtra(EXTRA_TASK, -1)
         val realm = Realm.getDefaultInstance()
-        mTask = realm.where(Task::class.java).equalTo("id",taskId).findFirst()
+        mTask = realm.where(Task::class.java).equalTo("id", taskId).findFirst()
         realm.close()
 
-        if (mTask == null){
+        if (mTask == null) {
             //新規作成の場合
             val calendar = Calendar.getInstance()
             mYear = calendar.get(Calendar.YEAR)
@@ -142,7 +122,7 @@ class InputActivity : AppCompatActivity() {
             mHour = calendar.get(Calendar.HOUR_OF_DAY)
             mMinute = calendar.get(Calendar.MINUTE)
 
-        }else{
+        } else {
             //更新の場合
             title_edit_text.setText(mTask!!.title)
             content_edit_text.setText(mTask!!.contents)
@@ -155,12 +135,56 @@ class InputActivity : AppCompatActivity() {
             mHour = calendar.get(Calendar.HOUR_OF_DAY)
             mMinute = calendar.get(Calendar.MINUTE)
 
-            val dateString = mYear.toString() + "/" + String.format("%02d",mMonth + 1) + "/" + String.format("%02d",mDay)
-            val timeString = String.format("%02d",mHour) + ":" + String.format("%02d",mMinute)
+            val dateString = mYear.toString() + "/" + String.format(
+                "%02d",
+                mMonth + 1
+            ) + "/" + String.format("%02d", mDay)
+            val timeString = String.format("%02d", mHour) + ":" + String.format("%02d", mMinute)
 
             date_button.text = dateString
             times_button.text = timeString
         }
+
+        //spinnerの設定
+        val adapter2 = ArrayAdapter(applicationContext,
+            android.R.layout.simple_spinner_item, spinnerItems)
+
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        spinner.adapter = adapter2
+
+        spinner.setSelection(0)
+
+        spinner.setFocusable(false)
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                vier: View?,
+                position: Int,
+                id: Long
+            ) {
+                if (search_spinner.isFocusable() == false) {
+                    search_spinner.setFocusable(true);
+                    return
+                } else {
+                    val spinnerParent = parent as Spinner
+                    val item: String = spinnerParent.selectedItem as String
+                    mCategory = item
+                    Log.d("TaskApp", "item")
+                }
+
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+                Log.d("TaskApp", "miss")
+
+            }
+
+        }
+        Log.d("TaskApp", "${spinner}")
 
     }
 
@@ -173,21 +197,21 @@ class InputActivity : AppCompatActivity() {
 
     }
 
-    private fun  addTask() {
+    private fun addTask() {
         val realm = Realm.getDefaultInstance()
 
         realm.beginTransaction()
 
-        if (mTask == null){
+        if (mTask == null) {
             //新規作成の場合
             mTask = Task()
 
             val taskRealmResult = realm.where(Task::class.java).findAll()
 
             val identifier: Int =
-                if (taskRealmResult.max("id") != null){
+                if (taskRealmResult.max("id") != null) {
                     taskRealmResult.max("id")!!.toInt() + 1
-                }else{
+                } else {
                     0
                 }
             mTask!!.id = identifier
@@ -208,8 +232,8 @@ class InputActivity : AppCompatActivity() {
 
         realm.close()
 
-        val resultIntent = Intent(applicationContext,TaskAlarmReceiver::class.java)
-        resultIntent.putExtra(EXTRA_TASK,mTask!!.id)//通知の内容を作るための準備
+        val resultIntent = Intent(applicationContext, TaskAlarmReceiver::class.java)
+        resultIntent.putExtra(EXTRA_TASK, mTask!!.id)//通知の内容を作るための準備
         val resultPendingIntent = PendingIntent.getBroadcast(
             this,
             mTask!!.id,//識別のため
@@ -218,25 +242,27 @@ class InputActivity : AppCompatActivity() {
         )
 
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.set(AlarmManager.RTC_WAKEUP/*UTC時間を指定する、スリープ中でもアラームを発行する*/,
-            calendar.timeInMillis/*UTC時間で指定*/,resultPendingIntent)
+        alarmManager.set(
+            AlarmManager.RTC_WAKEUP/*UTC時間を指定する、スリープ中でもアラームを発行する*/,
+            calendar.timeInMillis/*UTC時間で指定*/, resultPendingIntent
+        )
     }
 
     private fun reloadListView() {
         // Realmデータベースから、「全てのデータを取得して新しい日時順に並べた結果」を取得
-        val taskRealmResults = mRealm.where(Category::class.java).findAll().sort("id", Sort.DESCENDING)
+        val taskRealmResults =
+            mRealm.where(Category::class.java).findAll().sort("id", Sort.DESCENDING)
 
         // 上記の結果を、TaskList としてセットする
         mCategoryobject = mRealm.copyFromRealm(taskRealmResults)
 
         spinnerItems.clear()
 
-        var categoryString:String
-        for (i in mCategoryobject.indices){
+        var categoryString: String
+        for (i in mCategoryobject.indices) {
             categoryString = mCategoryobject[i].category
             spinnerItems.add(categoryString)
         }
-
 
 
     }
