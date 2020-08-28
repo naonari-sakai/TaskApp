@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background=""
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="16dp"
@@ -19,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="タイトル" />
+
     <EditText
         android:id="@+id/content_edit_text"
         android:layout_width="match_parent"
@@ -43,7 +43,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/date_button"
         android:layout_alignParentEnd="true"
-
         android:background="@color/colorAccent"
         android:text="  カテゴリーの追加  " />
 
