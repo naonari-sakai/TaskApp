@@ -145,6 +145,16 @@ class InputActivity : AppCompatActivity() {
             times_button.text = timeString
         }
 
+
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+
+        reloadListView()
+
         //spinnerの設定
         val adapter2 = ArrayAdapter(applicationContext,
             android.R.layout.simple_spinner_item, spinnerItems)
@@ -155,7 +165,7 @@ class InputActivity : AppCompatActivity() {
 
         spinner.setSelection(0)
 
-        spinner.setFocusable(false)
+        //spinner.setFocusable(false)
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
@@ -165,15 +175,15 @@ class InputActivity : AppCompatActivity() {
                 vier: View?,
                 position: Int,
                 id: Long
-            ) {
-                if (search_spinner.isFocusable() == false) {
-                    search_spinner.setFocusable(true);
+            ) {Log.d("TaskApp", "item")
+                if (spinner.isFocusable() == false) {
+                    spinner.setFocusable(true);
                     return
                 } else {
                     val spinnerParent = parent as Spinner
                     val item: String = spinnerParent.selectedItem as String
                     mCategory = item
-                    Log.d("TaskApp", "item")
+
                 }
 
             }
@@ -185,14 +195,6 @@ class InputActivity : AppCompatActivity() {
 
         }
         Log.d("TaskApp", "${spinner}")
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-
-        reloadListView()
 
 
     }
