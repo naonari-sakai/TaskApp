@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mRealm: Realm
     private lateinit var mRealmCotegory: Realm
     lateinit var mCategoryobject: MutableList<Category>
-    private var spinnerItems = mutableListOf<String>()
+    private var spinnerItems:MutableList<String> = mutableListOf<String>()
     private val mRealmListener = object  : RealmChangeListener<Realm>{
         override fun onChange(element: Realm) {
             reloadListView()
@@ -72,29 +72,36 @@ class MainActivity : AppCompatActivity() {
 
         search_spinner.adapter = adapter
 
-        search_spinner.setSelection(-1)
+        search_spinner.setFocusable(false)
 
         search_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
 
             //アイテムが選択された時
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val spinnerParent = parent as Spinner
-                val item:String = spinnerParent.selectedItem as String
 
-                val RealmQuery = mRealm.where(Task::class.java)
-                val RealmQueryResult =
-                    RealmQuery.equalTo("category", "$item").findAll()
-                        .sort("date", Sort.DESCENDING)
+                if (search_spinner.isFocusable() == false) {
+                    search_spinner.setFocusable(true);
+                    return;
+                }else {
+                    val spinnerParent = parent as Spinner
+                    val item: String = spinnerParent.selectedItem as String
 
-                mTaskAdapter.taskList = mRealm.copyFromRealm(RealmQueryResult)
+                    val RealmQuery = mRealm.where(Task::class.java)
+                    val RealmQueryResult =
+                        RealmQuery.equalTo("category", "$item").findAll()
+                            .sort("date", Sort.DESCENDING)
 
-                // TaskのListView用のアダプタに渡す
-                listView1.adapter = mTaskAdapter
+                    mTaskAdapter.taskList = mRealm.copyFromRealm(RealmQueryResult)
 
-                // 表示を更新するために、アダプターにデータが変更されたことを知らせる
-                mTaskAdapter.notifyDataSetChanged()
 
-                Log.d("TaskApp","test")
+                    // TaskのListView用のアダプタに渡す
+                    listView1.adapter = mTaskAdapter
+
+                    // 表示を更新するために、アダプターにデータが変更されたことを知らせる
+                    mTaskAdapter.notifyDataSetChanged()
+
+                    Log.d("TaskApp", "test")
+                }
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
