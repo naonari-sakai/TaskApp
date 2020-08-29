@@ -157,9 +157,9 @@ class InputActivity : AppCompatActivity() {
 
         //spinnerの設定
         val adapter2 = ArrayAdapter(applicationContext,
-            android.R.layout.simple_spinner_item, spinnerItems)
+            R.layout.custom_spinner, spinnerItems)
 
-        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter2.setDropDownViewResource(R.layout.custom_spinner_dropdown)
 
         spinner.adapter = adapter2
 
