@@ -41,11 +41,12 @@ class InputActivity : AppCompatActivity() {
     lateinit var mCategoryobject: MutableList<Category>
     private var mTask: Task? = null
 
-    private var spinnerItems:MutableList<String> = mutableListOf<String>()
+    private var spinnerItems: MutableList<String> = mutableListOf<String>()
 
 
     private val mOnDateClickListener = View.OnClickListener {
-        val datePickerDialog = DatePickerDialog(this,
+        val datePickerDialog = DatePickerDialog(
+            this,
             DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
                 mYear = year
                 mMonth = month
@@ -62,7 +63,8 @@ class InputActivity : AppCompatActivity() {
     }
 
     private val mOnTimeClickListener = View.OnClickListener {
-        val timePickerDialog = TimePickerDialog(this,
+        val timePickerDialog = TimePickerDialog(
+            this,
             TimePickerDialog.OnTimeSetListener { _, hour, minute ->
                 mHour = hour
                 mMinute = minute
@@ -134,6 +136,7 @@ class InputActivity : AppCompatActivity() {
             mDay = calendar.get(Calendar.DAY_OF_MONTH)
             mHour = calendar.get(Calendar.HOUR_OF_DAY)
             mMinute = calendar.get(Calendar.MINUTE)
+            mCategory = mTask!!.category
 
             val dateString = mYear.toString() + "/" + String.format(
                 "%02d",
@@ -146,7 +149,6 @@ class InputActivity : AppCompatActivity() {
         }
 
 
-
     }
 
     override fun onResume() {
@@ -156,18 +158,19 @@ class InputActivity : AppCompatActivity() {
         reloadListView()
 
         //spinnerの設定
-        val adapter2 = ArrayAdapter(applicationContext,
-            R.layout.custom_spinner, spinnerItems)
+        val adapter2 = ArrayAdapter(
+            applicationContext,
+            R.layout.custom_spinner, spinnerItems
+        )
 
         adapter2.setDropDownViewResource(R.layout.custom_spinner_dropdown)
 
         spinner.adapter = adapter2
 
-        spinner.setSelection(0)
+        var selectionPosition = adapter2.getPosition(mCategory)
+        spinner.setSelection(selectionPosition)
 
-        //spinner.setFocusable(false)
-
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
 
 
             override fun onItemSelected(
@@ -175,16 +178,13 @@ class InputActivity : AppCompatActivity() {
                 vier: View?,
                 position: Int,
                 id: Long
-            ) {Log.d("TaskApp", "item")
-                if (spinner.isFocusable() == false) {
-                    spinner.setFocusable(true);
-                    return
-                } else {
-                    val spinnerParent = parent as Spinner
-                    val item: String = spinnerParent.selectedItem as String
-                    mCategory = item
+            ) {
+                Log.d("TaskApp", "item")
 
-                }
+                val spinnerParent = parent as Spinner
+                val item: String = spinnerParent.selectedItem as String
+                mCategory = item
+
 
             }
 
@@ -268,5 +268,12 @@ class InputActivity : AppCompatActivity() {
 
 
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mRealm.close()
+
+    }
+
 
 }
